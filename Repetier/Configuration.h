@@ -126,7 +126,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
     #define STEPS_PER_ROTATION 200
 
     /** \brief Micro stepping rate of X, Y and Y tower stepper drivers */
-    #define MICRO_STEPS 16
+    #define MICRO_STEPS 32
 
     /** \brief Number of delta moves in each line. Moves that exceed this figure will be split into multiple lines.
     Increasing this figure can use a lot of memory since 7 bytes * size of line buffer * MAX_SELTA_SEGMENTS_PER_LINE
@@ -164,8 +164,8 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 // for each extruder, fan will stay on until extruder temperature is below this value
 #define EXTRUDER_FAN_COOL_TEMP 120
 
-#define EXT0_X_OFFSET 796  //9.95mm * 80 = 796 (or *160 = 1592)
-#define EXT0_Y_OFFSET 476  //5.95mm * 80 = 476 (or *160 = 952)
+#define EXT0_X_OFFSET 1592 // 796  9.95mm * 80 = 796 (or *160 = 1592)
+#define EXT0_Y_OFFSET 952  //5.95mm * 80 = 476 (or *160 = 952)
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT0_STEPS_PER_MM 98 //DT_PERFORMANCE
 // What type of sensor is used?
@@ -279,8 +279,8 @@ The codes are only executed for multiple extruder when changing the extruder. */
 
 
 // =========================== Configuration for second extruder ========================
-#define EXT1_X_OFFSET 0  //0mm * 80 = 0 (or *160 = 0)
-#define EXT1_Y_OFFSET 928  //11.60mm * 80 = 928 (or *160 = 1856)
+#define EXT1_X_OFFSET 0     //0mm * 80 = 0 (or *160 = 0)
+#define EXT1_Y_OFFSET 1856  //11.60mm * 80 = 928 (or *160 = 1856)
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT1_STEPS_PER_MM 98
 // What type of sensor is used?
@@ -858,9 +858,9 @@ on this endstop.
 #define DELTA_ALPHA_C 90
 
 /** Correct radius by this value for each column. Perfect builds have 0 everywhere. */
-#define DELTA_RADIUS_CORRECTION_A 0
-#define DELTA_RADIUS_CORRECTION_B 0
-#define DELTA_RADIUS_CORRECTION_C 0
+#define DELTA_RADIUS_CORRECTION_A -5.0
+#define DELTA_RADIUS_CORRECTION_B -5.0
+#define DELTA_RADIUS_CORRECTION_C -5.0
 
 /** \brief Horizontal offset of the universal joints on the end effector (moving platform).
 */
@@ -872,7 +872,7 @@ on this endstop.
 
 /** \brief Printer radius in mm, measured from the center of the print area to the vertical smooth rod.
 */
-#define PRINTER_RADIUS 280.0
+#define PRINTER_RADIUS 270.0  // changed from 280.0
 
 /**  \brief Horizontal distance bridged by the diagonal push rod when the end effector is in the center. It is pretty close to 50% of the push rod length (250 mm).
 */
@@ -1136,7 +1136,7 @@ matches, the stored values are used to overwrite the settings.
 IMPORTANT: With mode <>0 some changes in Configuration.h are not set any more, as they are
            taken from the EEPROM.
 */
-#define EEPROM_MODE 3
+#define EEPROM_MODE 2
 
 
 /**************** duplicate motor driver ***************
