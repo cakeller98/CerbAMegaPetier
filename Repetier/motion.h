@@ -51,7 +51,7 @@
 /** Wait for the extruder to finish it's down movement */
 #define FLAG_JOIN_WAIT_EXTRUDER_DOWN 128
 // Printing related data
-#if DRIVE_SYSTEM==3
+#if NONLINEAR_SYSTEM
 // Allow the delta cache to store segments for every line in line cache. Beware this gets big ... fast.
 // MAX_DELTA_SEGMENTS_PER_LINE *
 #define DELTA_CACHE_SIZE (MAX_DELTA_SEGMENTS_PER_LINE * MOVE_CACHE_SIZE)
@@ -64,19 +64,11 @@ typedef struct
     inline void checkEndstops(PrintLine *cur,bool checkall);
     inline void setXMoveFinished()
     {
-#if DRIVE_SYSTEM==0 || DRIVE_SYSTEM==3
         dir&=~16;
-#else
-        dir&=~48;
-#endif
     }
     inline void setYMoveFinished()
     {
-#if DRIVE_SYSTEM==0 || DRIVE_SYSTEM==3
         dir&=~32;
-#else
-        dir&=~48;
-#endif
     }
     inline void setZMoveFinished()
     {
@@ -164,13 +156,14 @@ typedef struct
     }
 } DeltaSegment;
 extern DeltaSegment segments[];					// Delta segment cache
-extern unsigned int delta_segment_write_pos; 	// Position where we write the next cached delta move
+extern unsigned int deltaSegmentWritePos; 	// Position where we write the next cached delta move
 extern volatile unsigned int deltaSegmentCount; // Number of delta moves cached 0 = nothing in cache
 extern uint8_t lastMoveID;
 #endif
-
+class UIDisplay;
 class PrintLine   // RAM usage: 24*4+15 = 113 Byte
 {
+    friend class UIDisplay;
 #if CPU_ARCH==ARCH_ARM
     static volatile bool nlFlag;
 #endif
@@ -195,8 +188,9 @@ class PrintLine   // RAM usage: 24*4+15 = 113 Byte
     float maxJunctionSpeed;         ///< Max. junction speed between this and next segment
     float startSpeed;               ///< Staring speed in mm/s
     float endSpeed;                 ///< Exit speed in mm/s
+    float minSpeed;
     float distance;
-#if DRIVE_SYSTEM==3
+#if NONLINEAR_SYSTEM
     uint8_t numDeltaSegments;		  		///< Number of delta segments left in line. Decremented by stepper timer.
     uint8_t moveID;							///< ID used to identify moves which are all part of the same line
     int deltaSegmentReadPos; 	 			///< Pointer to next DeltaSegment
@@ -311,9 +305,17 @@ public:
             if(isYPositiveMove() && Printer::isYMaxEndstopHit())
                 setYMoveFinished();
         }
-        // Test Z-Axis every step if necessary, otherwise it could easyly ruin your printer!
-        if(isZNegativeMove() && Printer::isZMinEndstopHit())
+#if FEATURE_Z_PROBE
+        if(Printer::isZProbingActive() && isZNegativeMove() && Printer::isZProbeHit())
+        {
             setZMoveFinished();
+            Printer::stepsRemainingAtZHit = stepsRemaining;
+        }
+        else
+#endif
+            // Test Z-Axis every step if necessary, otherwise it could easyly ruin your printer!
+            if(isZNegativeMove() && Printer::isZMinEndstopHit())
+                setZMoveFinished();
         if(isZPositiveMove() && Printer::isZMaxEndstopHit())
         {
 #if MAX_HARDWARE_ENDSTOP_Z
@@ -323,20 +325,10 @@ public:
         }
         if(isZPositiveMove() && Printer::isZMaxEndstopHit())
             setZMoveFinished();
-#if FEATURE_Z_PROBE
-        if(Printer::isZProbingActive())
-        {
-            if(isZNegativeMove() && Printer::isZProbeHit())
-            {
-                setZMoveFinished();
-                Printer::stepsRemainingAtZHit = stepsRemaining;
-            }
-        }
-#endif
     }
     inline void setXMoveFinished()
     {
-#if DRIVE_SYSTEM==0 || DRIVE_SYSTEM==3
+#if DRIVE_SYSTEM==0 || NONLINEAR_SYSTEM
         dir&=~16;
 #else
         dir&=~48;
@@ -344,7 +336,7 @@ public:
     }
     inline void setYMoveFinished()
     {
-#if DRIVE_SYSTEM==0 || DRIVE_SYSTEM==3
+#if DRIVE_SYSTEM==0 || NONLINEAR_SYSTEM
         dir&=~32;
 #else
         dir&=~48;
@@ -445,11 +437,14 @@ public:
         if(!Printer::isAdvanceActivated()) return;
 #ifdef ENABLE_QUADRATIC_ADVANCE
         long advanceTarget = Printer::advanceExecuted;
-        if(accelerate) {
+        if(accelerate)
+        {
             for(uint8_t loop = 0; loop<max_loops; loop++) advanceTarget += advanceRate;
             if(advanceTarget>advanceFull)
                 advanceTarget = advanceFull;
-        } else {
+        }
+        else
+        {
             for(uint8_t loop = 0; loop<max_loops; loop++) advanceTarget -= advanceRate;
             if(advanceTarget<advanceEnd)
                 advanceTarget = advanceEnd;
@@ -578,7 +573,8 @@ public:
         totalStepsRemaining--;
 #endif
     }
-    inline void startZStep() {
+    inline void startZStep()
+    {
         WRITE(Z_STEP_PIN,HIGH);
 #if FEATURE_TWO_ZSTEPPER
         WRITE(Z2_STEP_PIN,HIGH);
@@ -652,13 +648,13 @@ public:
     {
         p = (p==MOVE_CACHE_SIZE-1?0:p+1);
     }
-#if DRIVE_SYSTEM==3
+#if NONLINEAR_SYSTEM
     static void queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, uint8_t softEndstop);
     static inline void queueEMove(long e_diff,uint8_t check_endstops,uint8_t pathOptimize);
     inline uint16_t calculateDeltaSubSegments(uint8_t softEndstop);
     static inline void calculateDirectionAndDelta(long difference[], uint8_t *dir, long delta[]);
     static inline uint8_t calculateDistance(float axis_diff[], uint8_t dir, float *distance);
-#ifdef SOFTWARE_LEVELING
+#ifdef SOFTWARE_LEVELING && DRIVE_SYSTEM==3
     static void calculatePlane(long factors[], long p1[], long p2[], long p3[]);
     static float calcZOffset(long factors[], long pointX, long pointY);
 #endif

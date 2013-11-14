@@ -64,14 +64,12 @@ public:
     static unsigned long interval;    ///< Last step duration in ticks.
     static unsigned long timer;              ///< used for acceleration/deceleration timing
     static unsigned long stepNumber;         ///< Step number in current move.
-    static long coordinateOffset[3];
+    static float coordinateOffset[3];
     static long currentPositionSteps[4];     ///< Position in steps from origin.
     static float currentPosition[3];
     static long destinationSteps[4];         ///< Target position in steps.
-#if DRIVE_SYSTEM==3
-#ifdef STEP_COUNTER
+#if NONLINEAR_SYSTEM
     static long countZSteps;					///< Count of steps from last position reset
-#endif
     static long currentDeltaPositionSteps[4];
     static long maxDeltaPositionSteps;
     static long deltaDiagonalStepsSquared;
@@ -86,6 +84,10 @@ public:
 #if FEATURE_Z_PROBE || MAX_HARDWARE_ENDSTOP_Z
     static long stepsRemainingAtZHit;
 #endif
+#if DRIVE_SYSTEM==3
+    static long stepsRemainingAtXHit;
+    static long stepsRemainingAtYHit;
+#endif
 #ifdef SOFTWARE_LEVELING
     static long levelingP1[3];
     static long levelingP2[3];
@@ -95,6 +97,7 @@ public:
     static float autolevelTransformation[9]; ///< Transformation matrix
 #endif
     static float minimumSpeed;               ///< lowest allowed speed to keep integration error small
+    static float minimumZSpeed;              ///< lowest allowed speed to keep integration error small
     static long xMaxSteps;                   ///< For software endstops, limit of move in positive direction.
     static long yMaxSteps;                   ///< For software endstops, limit of move in positive direction.
     static long zMaxSteps;                   ///< For software endstops, limit of move in positive direction.
@@ -504,9 +507,9 @@ public:
     }
     static inline void realPosition(float &xp,float &yp,float &zp)
     {
-        xp = currentPosition[0];
-        yp = currentPosition[1];
-        zp = currentPosition[2];
+        xp = currentPosition[X_AXIS];
+        yp = currentPosition[Y_AXIS];
+        zp = currentPosition[Z_AXIS];
     }
     static inline void insertStepperHighDelay() {
 #if STEPPER_HIGH_DELAY>0

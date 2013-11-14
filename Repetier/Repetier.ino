@@ -49,6 +49,8 @@ Implemented Codes
 - G90 - Use absolute coordinates
 - G91 - Use relative coordinates
 - G92 - Set current position to cordinates given
+- G131 - set extruder offset position to 0 - needed for calibration with G132
+- G132 - calibrate endstop positions. Call this, after calling G131 and after centering the extruder holder.
 
 RepRap M Codes
 
@@ -83,6 +85,7 @@ Custom M Codes
         or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 - M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 - M92  - Set axisStepsPerMM - same syntax as G92
+- M105 X0 - Get temperatures. If X0 is added, the raw analog values are also written.
 - M112 - Emergency kill
 - M115- Capabilities string
 - M117 <message> - Write message in status row on lcd
@@ -101,8 +104,9 @@ Custom M Codes
 - M232 - Read and reset max. advance values
 - M233 X<AdvanceK> Y<AdvanceL> - Set temporary advance K-value to X and linear term advanceL to Y
 - M251 Measure Z steps from homing stop (Delta printers). S0 - Reset, S1 - Print, S2 - Store to Z length (also EEPROM if enabled)
+- M280 S<mode> - Set ditto printing mode. mode: 0 = off, 1 = on
 - M300 S<Frequency> P<DurationMillis> play frequency
-- M303 P<extruder/bed> S<drucktermeratur> Autodetect pid values. Use P<NUM_EXTRUDER> for heated bed.
+- M303 P<extruder/bed> S<drucktermeratur> X0 - Autodetect pid values. Use P<NUM_EXTRUDER> for heated bed. X0 saves result in EEPROM.
 - M320 - Activate autolevel
 - M321 - Deactivate autolevel
 - M322 - Reset autolevel matrix

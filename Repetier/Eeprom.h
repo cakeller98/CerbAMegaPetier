@@ -226,19 +226,19 @@ public:
         return Z_PROBE_Y3;
 #endif
     }
-#if DRIVE_SYSTEM==3
+#if NONLINEAR_SYSTEM
+    static inline int16_t deltaSegmentsPerSecondMove() {
+#if EEPROM_MODE!=0
+        return HAL::eprGetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_MOVE);
+#else
+        return DELTA_SEGMENTS_PER_SECOND_MOVE;
+#endif
+    }
     static inline float deltaDiagonalRodLength() {
 #if EEPROM_MODE!=0
         return HAL::eprGetFloat(EPR_DELTA_DIAGONAL_ROD_LENGTH);
 #else
         return DELTA_DIAGONAL_ROD;
-#endif
-    }
-    static inline float deltaHorizontalRadius() {
-#if EEPROM_MODE!=0
-        return HAL::eprGetFloat(EPR_DELTA_HORIZONTAL_RADIUS);
-#else
-        return DELTA_RADIUS;
 #endif
     }
     static inline int16_t deltaSegmentsPerSecondPrint() {
@@ -248,15 +248,15 @@ public:
         return DELTA_SEGMENTS_PER_SECOND_PRINT;
 #endif
     }
-    static inline int16_t deltaSegmentsPerSecondMove() {
-#if EEPROM_MODE!=0
-        return HAL::eprGetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_MOVE);
-#else
-        return DELTA_SEGMENTS_PER_SECOND_MOVE;
-#endif
-    }
 #endif
 #if DRIVE_SYSTEM==3
+    static inline float deltaHorizontalRadius() {
+#if EEPROM_MODE!=0
+        return HAL::eprGetFloat(EPR_DELTA_HORIZONTAL_RADIUS);
+#else
+        return DELTA_RADIUS;
+#endif
+    }
     static inline int16_t deltaTowerXOffsetSteps() {
 #if EEPROM_MODE!=0
         return HAL::eprGetInt16(EPR_DELTA_TOWERX_OFFSET_STEPS);
