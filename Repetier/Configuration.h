@@ -46,7 +46,7 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 /** Number of extruders. Maximum 6 extruders. */
-#define NUM_EXTRUDER 3
+#define NUM_EXTRUDER 1
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Gen3 PLUS for RepRap Motherboard V1.2 = 21
@@ -158,10 +158,10 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 // ##########################################################################################
 
 // for each extruder, fan will stay on until extruder temperature is below this value
-#define EXTRUDER_FAN_COOL_TEMP 120
+#define EXTRUDER_FAN_COOL_TEMP 50
 
-#define EXT0_X_OFFSET 1592 // 796  9.95mm * 80 = 796 (or *160 = 1592)
-#define EXT0_Y_OFFSET 952  //5.95mm * 80 = 476 (or *160 = 952)
+#define EXT0_X_OFFSET -1498
+#define EXT0_Y_OFFSET 920
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT0_STEPS_PER_MM 98 //DT_PERFORMANCE
 // What type of sensor is used?
@@ -199,7 +199,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use higher values.
 //  Overridden if EEPROM activated.
-#define EXT0_MAX_FEEDRATE 300
+#define EXT0_MAX_FEEDRATE 175
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
 #define EXT0_MAX_START_FEEDRATE 40
@@ -275,8 +275,8 @@ The codes are only executed for multiple extruder when changing the extruder. */
 
 
 // =========================== Configuration for second extruder ========================
-#define EXT1_X_OFFSET 0     //0mm * 80 = 0 (or *160 = 0)
-#define EXT1_Y_OFFSET 1856  //11.60mm * 80 = 928 (or *160 = 1856)
+#define EXT1_X_OFFSET 1800
+#define EXT1_Y_OFFSET 1150
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT1_STEPS_PER_MM 98
 // What type of sensor is used?
@@ -313,7 +313,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use heigher values.
 //  Overridden if EEPROM activated.
-#define EXT1_MAX_FEEDRATE 300
+#define EXT1_MAX_FEEDRATE 175
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
 #define EXT1_MAX_START_FEEDRATE 40
@@ -380,8 +380,8 @@ cog. Direct drive extruder need 0. */
 
 
 // =========================== Configuration for third extruder ========================
-#define EXT2_X_OFFSET -796  //-9.95mm * 80 = 796 (or *160 = 1592)
-#define EXT2_Y_OFFSET 476  //5.95mm * 80 = 476 (or *160 = 952)
+#define EXT2_X_OFFSET 0
+#define EXT2_Y_OFFSET -1840
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT2_STEPS_PER_MM 98
 // What type of sensor is used?
@@ -593,7 +593,7 @@ See http://reprap.org/wiki/MeasuringThermistorBeta for more details.
 
 // The same for table 2 and 3 if needed
 
-//#define USE_GENERIC_THERMISTORTABLE_2
+// #define USE_GENERIC_THERMISTORTABLE_2
 #define GENERIC_THERM2_R0 100000
 #define GENERIC_THERM2_T0 25
 #define GENERIC_THERM2_BETA 3950
@@ -686,11 +686,11 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define MAXTEMP 260
+#define MAXTEMP 350
 
 /** Extreme values to detect defect thermistors. */
 #define MIN_DEFECT_TEMPERATURE -10
-#define MAX_DEFECT_TEMPERATURE 300
+#define MAX_DEFECT_TEMPERATURE 350
 
 /** \brief Used reference, normally ANALOG_REF_AVCC or ANALOG_REF_AREF for experts ANALOG_REF_INT_2_56 = 2.56V and ANALOG_REF_INT_1_1=1.1V internaly generated */
 #define ANALOG_REF ANALOG_REF_AVCC
@@ -723,7 +723,7 @@ on this endstop.
 
 #define MIN_HARDWARE_ENDSTOP_X false
 #define MIN_HARDWARE_ENDSTOP_Y false
-#define MIN_HARDWARE_ENDSTOP_Z false  // was true - but after Tuga entries prevented Z from moving down.
+#define MIN_HARDWARE_ENDSTOP_Z false
 #define MAX_HARDWARE_ENDSTOP_X true
 #define MAX_HARDWARE_ENDSTOP_Y true
 #define MAX_HARDWARE_ENDSTOP_Z true
@@ -798,7 +798,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 300
 #define Y_MAX_LENGTH 300
-#define Z_MAX_LENGTH 387.1
+#define Z_MAX_LENGTH 345.8
 
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
@@ -856,9 +856,9 @@ on this endstop.
 #define DELTA_ALPHA_C 90
 
 /** Correct radius by this value for each column. Perfect builds have 0 everywhere. */
-#define DELTA_RADIUS_CORRECTION_A -5.0
-#define DELTA_RADIUS_CORRECTION_B -5.0
-#define DELTA_RADIUS_CORRECTION_C -5.0
+#define DELTA_RADIUS_CORRECTION_A 7.0
+#define DELTA_RADIUS_CORRECTION_B 7.0
+#define DELTA_RADIUS_CORRECTION_C 7.0
 
 /** \brief Horizontal offset of the universal joints on the end effector (moving platform).
 */
@@ -907,7 +907,7 @@ you can also change the values online and auleveling will store the results here
 Increasing this figure can use a lot of memory since 7 bytes * size of line buffer * MAX_SELTA_SEGMENTS_PER_LINE
 will be allocated for the delta buffer. With defaults 7 * 16 * 22 = 2464 bytes. This leaves ~1K free RAM on an Arduino
 Mega. Used only for nonlinear systems like delta or tuga. */
-#define MAX_DELTA_SEGMENTS_PER_LINE 22
+#define MAX_DELTA_SEGMENTS_PER_LINE 24
 
 /** After x seconds of inactivity, the stepper motors are disabled.
     Set to 0 to leave them enabled.
@@ -1022,7 +1022,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define MOVE_CACHE_SIZE 12
+#define MOVE_CACHE_SIZE 16
 
 /** \brief Low filled cache size.
 
@@ -1076,7 +1076,7 @@ to activate the quadratic term. Only adds lots of computations and storage usage
 // ##                           Communication configuration                                ##
 // ##########################################################################################
 
-//// AD595 THERMOCOUPLE SUPPORT UNTESTED... USE WITH CAUTION!!!!
+//// AD595 THERMOCOUPLE SUPPORT UNTESTED... USE WITH CAUTION!
 
 /** \brief Communication speed.
 
@@ -1089,8 +1089,8 @@ to activate the quadratic term. Only adds lots of computations and storage usage
  Overridden if EEPROM activated.
 */
 //#define BAUDRATE 76800
-//#define BAUDRATE 115200
-#define BAUDRATE 250000
+#define BAUDRATE 115200
+//#define BAUDRATE 250000
 
 /**
 Some boards like Gen7 have a power on pin, to enable the atx power supply. If this is defined,
@@ -1201,7 +1201,7 @@ is always running and is not hung up for some unknown reason. */
 #define Z_PROBE_PIN Z_MIN_PIN //63
 #define Z_PROBE_PULLUP true
 #define Z_PROBE_ON_HIGH true
-#define Z_PROBE_X_OFFSET -18.4
+#define Z_PROBE_X_OFFSET 18.4
 #define Z_PROBE_Y_OFFSET 0
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
@@ -1222,12 +1222,12 @@ is always running and is not hung up for some unknown reason. */
    The same 3 points are used for the G29 command.
 */
 #define FEATURE_AUTOLEVEL true
-#define Z_PROBE_X1 -148
-#define Z_PROBE_Y1 -80
-#define Z_PROBE_X2 148
-#define Z_PROBE_Y2 -80
+#define Z_PROBE_X1 -112.58
+#define Z_PROBE_Y1 -65
+#define Z_PROBE_X2 112.58
+#define Z_PROBE_Y2 -65
 #define Z_PROBE_X3 0
-#define Z_PROBE_Y3 165
+#define Z_PROBE_Y3 130
 
 /** Set to false to disable SD support: */
 #ifndef SDSUPPORT  // Some boards have sd support on board. These define the values already in pins.h
@@ -1268,7 +1268,7 @@ The following settings override uiconfig.h!
 2 = Smartcontroller from reprapdiscount on a RAMPS or RUMBA board
 3 = Adafruit RGB controller
 4 = Foltyn 3DMaster with display attached
-5 = ViKi LCD - Check pin configuration in ui.h for feature controller 5!!! sd card disabled by default!
+5 = ViKi LCD - Check pin configuration in ui.h for feature controller 5! sd card disabled by default!
 6 = ReprapWorld Keypad / LCD, predefined pins for Megatronics v2.0 and RAMPS 1.4. Please check if you have used the defined pin layout in ui.h.
 7 = RADDS Extension Port
 8 = PiBot Display/Controller extension with 20x4 character display
