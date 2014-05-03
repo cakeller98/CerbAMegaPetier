@@ -35,15 +35,6 @@ SDCard::SDCard()
     sdactive = false;
     savetosd = false;
     Printer::setAutomount(false);
-    //power to SD reader
-#if SDPOWER > -1
-    SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER,HIGH);
-#endif
-#if defined(SDCARDDETECT) && SDCARDDETECT>-1
-    SET_INPUT(SDCARDDETECT);
-    WRITE(SDCARDDETECT,HIGH);
-#endif
 }
 
 void SDCard::automount()
@@ -119,7 +110,7 @@ void SDCard::unmount()
     savetosd = false;
     Printer::setAutomount(false);
     Printer::setMenuMode(MENU_MODE_SD_MOUNTED+MENU_MODE_SD_PAUSED+MENU_MODE_SD_PRINTING,false);
-#if UI_DISPLAY_TYPE!=0
+#if UI_DISPLAY_TYPE!=0 && SDSUPPORT
     uid.cwd[0]='/';
     uid.cwd[1]=0;
     uid.folderLevel=0;
@@ -143,9 +134,9 @@ void SDCard::pausePrint(bool intern)
         Commands::waitUntilEndOfAllBuffers();
         Printer::MemoryPosition();
 #if DRIVE_SYSTEM==3
-        Printer::moveToReal(0,0.4*Printer::yLength,Printer::currentPosition[Z_AXIS],IGNORE_COORDINATE,Printer::maxFeedrate[X_AXIS]);
+        Printer::moveToReal(0,0.9*EEPROM::deltaMaxRadius(),Printer::lastCmdPos[Z_AXIS],IGNORE_COORDINATE,Printer::maxFeedrate[X_AXIS]);
 #else
-        Printer::moveToReal(Printer::xMin,Printer::yMin+Printer::yLength,Printer::currentPosition[Z_AXIS],IGNORE_COORDINATE,Printer::maxFeedrate[X_AXIS]);
+        Printer::moveToReal(Printer::xMin,Printer::yMin+Printer::yLength,Printer::lastCmdPos[Z_AXIS],IGNORE_COORDINATE,Printer::maxFeedrate[X_AXIS]);
 #endif
     }
 #endif

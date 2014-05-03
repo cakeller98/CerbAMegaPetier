@@ -25,15 +25,6 @@ extern const int8_t encoder_table[16] PROGMEM ;
 #include <ctype.h>
 
 
-#if UI_ENCODER_SPEED==0
-const int8_t encoder_table[16] PROGMEM = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0}; // Full speed
-#elif UI_ENCODER_SPEED==1
-const int8_t encoder_table[16] PROGMEM = {0,0,-1,0,0,0,0,1,1,0,0,0,0,-1,0,0}; // Half speed
-#else
-//const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,1,0,0,0,0,-1,0,0}; // Quart speed
-//const int8_t encoder_table[16] PROGMEM = {0,1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0}; // Quart speed
-const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart speed
-#endif
 
 
 #if BEEPER_TYPE==2 && defined(UI_HAS_I2C_KEYS) && UI_I2C_KEY_ADDRESS!=BEEPER_ADDRESS
@@ -386,9 +377,17 @@ void lcdWriteNibble(uint8_t value)
     WRITE(UI_DISPLAY_D6_PIN,value & 4);
     WRITE(UI_DISPLAY_D7_PIN,value & 8);
     WRITE(UI_DISPLAY_ENABLE_PIN, HIGH);// enable pulse must be >450ns
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
     WRITE(UI_DISPLAY_ENABLE_PIN, LOW);
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
 }
 void lcdWriteByte(uint8_t c,uint8_t rs)
 {
@@ -405,14 +404,30 @@ void lcdWriteByte(uint8_t c,uint8_t rs)
     do
     {
         WRITE(UI_DISPLAY_ENABLE_PIN, HIGH);
+#if CPU_ARCH == ARCH_AVR
         __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
         busy = READ(UI_DISPLAY_D7_PIN);
         WRITE(UI_DISPLAY_ENABLE_PIN, LOW);
+#if CPU_ARCH == ARCH_AVR
         __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+        HAL::delayMicroseconds(1);
+#endif
         WRITE(UI_DISPLAY_ENABLE_PIN, HIGH);
+#if CPU_ARCH == ARCH_AVR
         __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
         WRITE(UI_DISPLAY_ENABLE_PIN, LOW);
+#if CPU_ARCH == ARCH_AVR
         __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+        HAL::delayMicroseconds(1);
+#endif
     }
     while (busy);
     SET_OUTPUT(UI_DISPLAY_D4_PIN);
@@ -428,18 +443,34 @@ void lcdWriteByte(uint8_t c,uint8_t rs)
     WRITE(UI_DISPLAY_D6_PIN, c & 0x40);
     WRITE(UI_DISPLAY_D7_PIN, c & 0x80);
     WRITE(UI_DISPLAY_ENABLE_PIN, HIGH);   // enable pulse must be >450ns
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
     WRITE(UI_DISPLAY_ENABLE_PIN, LOW);
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
 
     WRITE(UI_DISPLAY_D4_PIN, c & 0x01);
     WRITE(UI_DISPLAY_D5_PIN, c & 0x02);
     WRITE(UI_DISPLAY_D6_PIN, c & 0x04);
     WRITE(UI_DISPLAY_D7_PIN, c & 0x08);
     WRITE(UI_DISPLAY_ENABLE_PIN, HIGH);   // enable pulse must be >450ns
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
     WRITE(UI_DISPLAY_ENABLE_PIN, LOW);
+#if CPU_ARCH == ARCH_AVR
     __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+#else
+    HAL::delayMicroseconds(1);
+#endif
 }
 void initializeLCD()
 {
@@ -776,11 +807,9 @@ void UIDisplay::initialize()
     activeAction = 0;
     statusMsg[0] = 0;
     ui_init_keys();
-#if SDSUPPORT
     cwd[0]='/';
     cwd[1]=0;
     folderLevel=0;
-#endif
     UI_STATUS(UI_TEXT_PRINTER_READY);
 #if UI_DISPLAY_TYPE>0
     initializeLCD();
@@ -789,6 +818,18 @@ void UIDisplay::initialize()
     // but if I reinitialize i2c and the lcd again here it works.
     HAL::delayMilliseconds(10);
     HAL::i2cInit(UI_I2C_CLOCKSPEED);
+        // set direction of pins
+    HAL::i2cStart(UI_DISPLAY_I2C_ADDRESS+I2C_WRITE);
+    HAL::i2cWrite(0); // IODIRA
+    HAL::i2cWrite(~(UI_DISPLAY_I2C_OUTPUT_PINS & 255));
+    HAL::i2cWrite(~(UI_DISPLAY_I2C_OUTPUT_PINS >> 8));
+    HAL::i2cStop();
+    // Set pullups according to  UI_DISPLAY_I2C_PULLUP
+    HAL::i2cStart(UI_DISPLAY_I2C_ADDRESS+I2C_WRITE);
+    HAL::i2cWrite(0x0C); // GPPUA
+    HAL::i2cWrite(UI_DISPLAY_I2C_PULLUP & 255);
+    HAL::i2cWrite(UI_DISPLAY_I2C_PULLUP >> 8);
+    HAL::i2cStop();
     initializeLCD();
 #endif
 #if UI_ANIMATION==false || UI_DISPLAY_TYPE==5
@@ -1351,10 +1392,10 @@ void UIDisplay::setStatus(char *txt,bool error)
 }
 
 const UIMenu * const ui_pages[UI_NUM_PAGES] PROGMEM = UI_PAGES;
-#if SDSUPPORT
 uint8_t nFilesOnCard;
 void UIDisplay::updateSDFileCount()
 {
+#if SDSUPPORT
     dir_t* p = NULL;
     byte offset = menuTop[menuLevel];
     SdBaseFile *root = sd.fat.vwd();
@@ -1371,10 +1412,12 @@ void UIDisplay::updateSDFileCount()
         if (nFilesOnCard==254)
             return;
     }
+#endif
 }
 
 void getSDFilenameAt(byte filePos,char *filename)
 {
+#if SDSUPPORT
     dir_t* p;
     byte c=0;
     SdBaseFile *root = sd.fat.vwd();
@@ -1391,6 +1434,7 @@ void getSDFilenameAt(byte filePos,char *filename)
         if(DIR_IS_SUBDIR(p)) strcat(filename, "/"); // Set marker for directory
         break;
     }
+#endif
 }
 
 bool UIDisplay::isDirname(char *name)
@@ -1402,6 +1446,7 @@ bool UIDisplay::isDirname(char *name)
 
 void UIDisplay::goDir(char *name)
 {
+#if SDSUPPORT
     char *p = cwd;
     while(*p)p++;
     if(name[0]=='.' && name[1]=='.')
@@ -1423,10 +1468,12 @@ void UIDisplay::goDir(char *name)
     }
     sd.fat.chdir(cwd);
     updateSDFileCount();
+    #endif
 }
 
 void sdrefresh(uint8_t &r,char cache[UI_ROWS][MAX_COLS+1])
 {
+#if SDSUPPORT
     dir_t* p = NULL;
     byte offset = uid.menuTop[uid.menuLevel];
     SdBaseFile *root;
@@ -1468,8 +1515,8 @@ void sdrefresh(uint8_t &r,char cache[UI_ROWS][MAX_COLS+1])
             strcpy(cache[r++],printCols);
         }
     }
+    #endif
 }
-#endif
 // Refresh current menu page
 void UIDisplay::refreshPage()
 {
@@ -2148,6 +2195,41 @@ void UIDisplay::nextPreviousAction(int8_t next)
     case UI_ACTION_EPOSITION:
         PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[3]*increment,UI_SET_EXTRUDER_FEEDRATE,true,false);
         Commands::printCurrentPosition();
+        break;
+    case UI_ACTION_ZPOSITION_NOTEST:
+        Printer::setNoDestinationCheck(true);
+#if UI_SPEEDDEPENDENT_POSITIONING
+    {
+        float d = 0.01*(float)increment*lastNextAccumul;
+        if(fabs(d)*2000>Printer::maxFeedrate[Z_AXIS]*dtReal)
+            d *= Printer::maxFeedrate[Z_AXIS]*dtReal/(2000*fabs(d));
+        long steps = (long)(d*Printer::axisStepsPerMM[Z_AXIS]);
+        steps = ( increment<0 ? RMath::min(steps,(long)increment) : RMath::max(steps,(long)increment));
+        PrintLine::moveRelativeDistanceInStepsReal(0,0,steps,0,Printer::maxFeedrate[Z_AXIS],true);
+    }
+#else
+    PrintLine::moveRelativeDistanceInStepsReal(0,0,increment,0,Printer::homingFeedrate[Z_AXIS],true);
+#endif
+        Commands::printCurrentPosition();
+        Printer::setNoDestinationCheck(false);
+    break;
+    case UI_ACTION_ZPOSITION_FAST_NOTEST:
+        Printer::setNoDestinationCheck(true);
+        PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS]*increment,0,Printer::homingFeedrate[Z_AXIS],true);
+        Commands::printCurrentPosition();
+        Printer::setNoDestinationCheck(false);
+        break;
+    case UI_ACTION_Z_BABYSTEPS:
+        {
+            previousMillisCmd = HAL::timeInMilliseconds();
+            if(increment > 0) {
+                if((int)Printer::zBabystepsMissing+BABYSTEP_MULTIPLICATOR<127)
+                    Printer::zBabystepsMissing+=BABYSTEP_MULTIPLICATOR;
+            } else {
+                if((int)Printer::zBabystepsMissing-BABYSTEP_MULTIPLICATOR>-127)
+                    Printer::zBabystepsMissing-=BABYSTEP_MULTIPLICATOR;
+            }
+        }
         break;
     case UI_ACTION_HEATED_BED_TEMP:
 #if HAVE_HEATED_BED==true
@@ -3022,6 +3104,15 @@ void UIDisplay::fastAction()
     HAL::allowInterrupts();
 #endif
 }
+#if UI_ENCODER_SPEED==0
+const int8_t encoder_table[16] PROGMEM = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0}; // Full speed
+#elif UI_ENCODER_SPEED==1
+const int8_t encoder_table[16] PROGMEM = {0,0,-1,0,0,0,0,1,1,0,0,0,0,-1,0,0}; // Half speed
+#else
+//const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,1,0,0,0,0,-1,0,0}; // Quart speed
+//const int8_t encoder_table[16] PROGMEM = {0,1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0}; // Quart speed
+const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart speed
+#endif
 
 #endif
 

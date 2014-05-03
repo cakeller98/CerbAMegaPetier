@@ -103,7 +103,6 @@
 #define UI_ACTION_FAN_FULL              1054
 #define UI_ACTION_FEEDRATE_MULTIPLY     1055
 #define UI_ACTION_STEPPER_INACTIVE      1056
-#define UI_ACTION_MAX_INACTIVE          1057
 #define UI_ACTION_PID_PGAIN             1058
 #define UI_ACTION_PID_IGAIN             1059
 #define UI_ACTION_PID_DGAIN             1060
@@ -155,6 +154,10 @@
 #define UI_ACTION_FANSPEED              1106
 #define UI_ACTION_LIGHTS_ONOFF          1107
 #define UI_ACTION_SD_STOP               1108
+#define UI_ACTION_ZPOSITION_NOTEST      1109
+#define UI_ACTION_ZPOSITION_FAST_NOTEST 1110
+#define UI_ACTION_Z_BABYSTEPS           1111
+#define UI_ACTION_MAX_INACTIVE          1112
 
 #define UI_ACTION_MENU_XPOS             4000
 #define UI_ACTION_MENU_YPOS             4001
@@ -393,14 +396,12 @@ class UIDisplay {
     void setStatus(char *txt,bool error = false);
     inline void setOutputMaskBits(unsigned int bits) {outputMask|=bits;}
     inline void unsetOutputMaskBits(unsigned int bits) {outputMask&=~bits;}
-#if SDSUPPORT
     void updateSDFileCount();
     //void sdrefresh(uint8_t &r,char cache[UI_ROWS][MAX_COLS+1]);
     void goDir(char *name);
     bool isDirname(char *name);
     char cwd[SD_MAX_FOLDER_DEPTH*LONG_FILENAME_LENGTH+2];
     uint8_t folderLevel;
-#endif
 };
 extern UIDisplay uid;
 
@@ -632,7 +633,6 @@ void ui_check_slow_keys(int &action) {}
 
 #define SDSUPPORT true
 #define SDCARDDETECTINVERTED false
-#define SDCARDDETECT 	   -1
 
 #define UI_HAS_KEYS 1
 #define UI_HAS_BACK_KEY 1
@@ -813,7 +813,7 @@ void ui_check_slow_keys(int &action) {
 #define UI_ENCODER_B           50
 #define UI_ENCODER_CLICK       48
 #define UI_RESET_PIN           -1
-#define UI_DELAYPERCHAR 320
+#define UI_DELAYPERCHAR 40
 #define UI_INVERT_MENU_DIRECTION false
 #ifdef UI_MAIN
 void ui_init_keys() {
