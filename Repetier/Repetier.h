@@ -22,7 +22,7 @@
 #ifndef _REPETIER_H
 #define _REPETIER_H
 
-#define REPETIER_VERSION "0.91 - Cerberus Mega"
+#define REPETIER_VERSION "0.91 for Cerberus Mega 2014.05.03"
 
 // ##########################################################################################
 // ##                                  Debug configuration                                 ##
